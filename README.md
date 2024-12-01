@@ -1,186 +1,135 @@
-# Tutorial CRUD com Node.js utilizando Clean Architecture
+# CRUD com Node.js utilizando Clean Architecture
+`Renato Teixeira Gomes - renatotg10@gmail.com`
 
-Autor: **Renato Teixeira Gomes**  
-Contato: **renatotg10@gmail.com**
+Este projeto é um exemplo de CRUD (Create, Read, Update, Delete) utilizando a **Clean Architecture**, com tecnologias modernas no Front-End e Back-End.
 
-Este é um tutorial completo para criar um CRUD utilizando **React** no Front-End, **Express** no Back-End (API), **Sequelize** como ORM e implementando a **Clean Architecture**. O banco de dados utilizado será o **MySQL**. Utilizaremos também o pacote **dotenv** para gerenciamento de variáveis de ambiente e **Bootstrap** para estilização.
+## 🛠️ Tecnologias Utilizadas
+
+- **Front-End**: React.js com Bootstrap para estilização
+- **Back-End**: Node.js com Express (API)
+- **ORM**: Sequelize
+- **Banco de Dados**: MySQL
+- **Gerenciamento de Variáveis de Ambiente**: dotenv
+- **Clean Architecture**: Organização baseada em camadas para separar as responsabilidades
+
+## 📂 Estrutura do Projeto
+
+O projeto está organizado nas seguintes pastas:
+
+- `frontend/`: Contém o código do Front-End desenvolvido em React.
+- `backend/`: Contém o código do Back-End com Node.js, Express e Sequelize.
 
 ---
 
-## 🎯 Objetivos do Tutorial
-- Construir um CRUD funcional e escalável.
-- Implementar o padrão **Clean Architecture** no Back-End.
-- Integrar Front-End e Back-End para criar uma aplicação completa.
-- Utilizar boas práticas para o desenvolvimento de APIs e gestão de banco de dados.
+## ⚙️ Como Configurar o Projeto
+
+Siga os passos abaixo para clonar, configurar e executar o projeto.
+
+### Pré-requisitos
+
+Certifique-se de ter instalado em sua máquina:
+
+- **Node.js** (versão 14 ou superior)
+- **npm** ou **yarn**
+- **MySQL** (com um banco de dados configurado)
+- **Git** (para clonar o repositório)
 
 ---
 
-## 🛠️ Configuração do Projeto
+### Passo 1: Clonar o Repositório
 
-### 1. Back-End (Node.js + Express + Sequelize)
-#### 1.1. Inicializando o projeto
 ```bash
-mkdir backend
-cd backend
-npm init -y
-```
-
-#### 1.2. Instalando dependências
-```bash
-npm install express sequelize mysql2 dotenv
-npm install --save-dev nodemon eslint
-```
-
-#### 1.3. Configurando o `dotenv`
-Crie um arquivo `.env` na raiz do projeto e configure as variáveis de ambiente:
-```plaintext
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=sua_senha
-DB_NAME=crud_database
-DB_PORT=3306
-DB_DIALECT=mysql
-```
-
-#### 1.4. Estrutura de pastas para Clean Architecture
-```plaintext
-backend/
-├── src/
-│   ├── app/
-│   │   ├── routes/
-│   │   │   └── userRoutes.mjs
-│   │   └── server.mjs
-│   ├── config/
-│   │   └── database.mjs
-│   ├── domain/
-│   │   └── entities/
-│   │       └── user.mjs
-│   ├── infrastructure/
-│   │   ├── models/
-│   │   │   └── user.mjs
-│   │   └── repositories/
-│   │       └── userRepository.mjs
-│   ├── usecases/
-│   │   └── userUseCase.mjs
-│   └── index.mjs
-├── .env
-└── package.json
-```
-
-#### 1.5. Criando o banco de dados
-Execute o seguinte comando no terminal:
-```bash
-mysql -u root -p -e "CREATE DATABASE crud_database;"
-```
-
-### 2. Configuração do Sequelize
-#### 2.1. Inicializando o Sequelize
-```bash
-npx sequelize-cli init
-```
-
-#### 2.2. Configurando o arquivo `config.js`
-Substitua o arquivo `config/config.json` pelo arquivo `config/config.js`:
-```javascript
-require('dotenv').config();
-
-module.exports = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-    port: process.env.DB_PORT,
-  },
-};
-```
-
-#### 2.3. Configurando o modelo `User`
-No arquivo `src/infrastructure/models/user.mjs`:
-```javascript
-import { DataTypes } from 'sequelize';
-import sequelize from '../../config/database.mjs';
-
-const User = sequelize.define('User', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
-
-export default User;
-```
-
-#### 2.4. Criando a tabela `Users`
-Gere a migration para criar a tabela `Users`:
-```bash
-npx sequelize-cli migration:generate --name create-users
-```
-
-Edite o arquivo de migration gerado em `migrations/`:
-```javascript
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Users', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false,
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-    });
-  },
-  down: async (queryInterface) => {
-    await queryInterface.dropTable('Users');
-  },
-};
-```
-
-Rode a migration:
-```bash
-npx sequelize-cli db:migrate
+git clone https://github.com/renatotg10/clean-architecture-node-sequelize.git
+cd clean-architecture-node-sequelize
 ```
 
 ---
 
-## 🚀 Próximos Passos
-1. Implementar as rotas e controladores para o CRUD de usuários.
-2. Configurar o Front-End utilizando React.
-3. Estilizar a aplicação com Bootstrap.
+### Passo 2: Configuração do Back-End
+
+1. Acesse a pasta do Back-End:
+   ```bash
+   cd backend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Crie o arquivo `.env` com as variáveis de ambiente:
+   ```
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=sua_senha
+   DB_NAME=crud_database
+   DB_PORT=3306
+   DB_DIALECT=mysql
+   PORT=3001
+   ```
+4. Rode as migrações para criar as tabelas no banco:
+   ```bash
+   npx sequelize db:migrate
+   ```
+5. Inicie o servidor:
+   ```bash
+   npm start
+   ```
 
 ---
 
-## 📝 Observações
-Este tutorial foi projetado para ajudar desenvolvedores a entender e implementar os conceitos de Clean Architecture em projetos Node.js, integrando tecnologias modernas como React e Sequelize para um desenvolvimento mais eficiente e escalável.
+### Passo 3: Configuração do Front-End
+
+1. Acesse a pasta do Front-End:
+   ```bash
+   cd ../frontend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configure o arquivo `.env` para definir a URL da API:
+   ```
+   REACT_APP_API_URL=http://localhost:3001
+   ```
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm start
+   ```
 
 ---
+
+## 📌 Funcionalidades
+
+- **CRUD Completo**: Criação, leitura, atualização e exclusão de dados.
+- **Arquitetura Limpa**: Separação de responsabilidades no Back-End.
+- **Estilização**: Front-End estilizado com Bootstrap.
+
+---
+
+## 🚀 Executando o Projeto
+
+1. Inicie o Back-End primeiro:
+   ```bash
+   cd backend
+   npm start
+   ```
+2. Em outra janela do terminal, inicie o Front-End:
+   ```bash
+   cd frontend
+   npm start
+   ```
+3. Acesse o projeto no navegador:
+   ```
+   http://localhost:3000
+   ```
+
+---
+
+## 🧩 Contribuindo
+
+Sinta-se à vontade para contribuir com o projeto enviando PRs ou relatando problemas na [seção de Issues](https://github.com/seu-usuario/seu-repositorio/issues).
+
+---
+
+## 📝 Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo [seção de Issues](https://github.com/seu-usuario/seu-repositorio/issues) para mais detalhes.
