@@ -34,7 +34,7 @@ Essa abordagem é útil quando você quer configurar rapidamente um projeto e n�
 
 #### 1.2. Instalar as dependências
 ```bash
-npm install express sequelize mysql2 dotenv
+npm install express sequelize mysql2 dotenv bcrypt
 npm install --save-dev nodemon eslint
 ```
 
@@ -130,6 +130,7 @@ DB_PASSWORD=sua_senha
 DB_NAME=crud_database
 DB_PORT=3306
 DB_DIALECT=mysql
+PORT=3001
 ```
 
 ---
@@ -394,22 +395,40 @@ npx sequelize-cli db:migrate
 
 #### 2.4. Criar o Repositório (`src/infrastructure/repositories/userRepository.mjs`)
 ```javascript
+import bcrypt from 'bcrypt';
 import User from '../models/user.mjs';
 
-export const createUser = async (userData) => User.create(userData);
-
-export const getAllUsers = async () => User.findAll();
-
-export const getUserById = async (id) => User.findByPk(id);
-
-export const updateUser = async (id, userData) => {
-  const user = await getUserById(id);
-  return user ? user.update(userData) : null;
+// Criação de um novo usuário com hash para a senha
+export const createUser = async (userData) => {
+    const hashedPassword = await bcrypt.hash(userData.password, 10); // Gera o hash da senha
+    userData.password = hashedPassword; // Substitui a senha original pelo hash
+    return User.create(userData);
 };
 
+// Obter todos os usuários
+export const getAllUsers = async () => User.findAll();
+
+// Obter um usuário pelo ID
+export const getUserById = async (id) => User.findByPk(id);
+
+// Atualizar informações de um usuário (exceto a senha diretamente)
+export const updateUser = async (id, userData) => {
+    const user = await getUserById(id);
+    if (!user) return null;
+
+    // Se o payload incluir senha, gere um novo hash
+    if (userData.password) {
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        userData.password = hashedPassword;
+    }
+
+    return user.update(userData);
+};
+
+// Deletar um usuário
 export const deleteUser = async (id) => {
-  const user = await getUserById(id);
-  return user ? user.destroy() : null;
+    const user = await getUserById(id);
+    return user ? user.destroy() : null;
 };
 ```
 
@@ -492,7 +511,389 @@ app.use('/api/users', userRoutes);
 })();
 ```
 
+#### 2.8. Configurar o Servidor (`package.json`)
+
+Para facilitar o processo de inicialização, você pode configurar o script de inicialização no `package.json`.
+
+Abra o arquivo `package.json` e adicione o seguinte script em `"scripts"`:
+
+```json
+"scripts": {
+  "start": "node src/app/server.mjs",
+  "dev": "nodemon src/app/server.mjs"
+}
+```
+
+- O comando `start` inicia o servidor normalmente.
+- O comando `dev` utiliza o **Nodemon**, que reinicia o servidor automaticamente sempre que você faz alterações no código.
+
+#### 2.9 Executando o Servidor
+
+**1. Rodando no Modo de Produção**
+Se você não estiver utilizando o **Nodemon** para desenvolvimento e preferir rodar o servidor normalmente, execute:
+
+```bash
+npm start
+```
+
+**2. Rodando no Modo de Desenvolvimento com Nodemon**
+Durante o desenvolvimento, é mais conveniente utilizar o **Nodemon** para reiniciar automaticamente o servidor quando houver alterações nos arquivos do projeto:
+
+```bash
+npm run dev
+```
+
 ---
+
+#### 2.10 Criando um **seeder** no Sequelize para teste da API
+
+Para criar um **seeder** no Sequelize e popular a tabela `users` com dados de teste, você pode seguir os passos abaixo:
+
+**1. Criar o Seeder**
+
+O Sequelize possui uma ferramenta de CLI que permite criar seeders automaticamente. Para criar um seeder para a tabela `users`, siga os passos:
+
+**1.1. Criar o Seeder**
+
+No terminal, dentro do diretório do seu projeto, execute o comando para gerar um seeder:
+
+```bash
+npx sequelize-cli seed:generate --name demo-user
+```
+
+Este comando vai gerar um arquivo na pasta `seeders` com um nome similar a `20240101010101-demo-user.js` (a data será gerada automaticamente).
+
+**1.2. Editar o Seeder**
+
+Abra o arquivo gerado na pasta `seeders` (por exemplo, `20240101010101-demo-user.js`). Você verá um template básico. Agora, edite para popular a tabela `users` com dados de teste. O conteúdo do arquivo pode ser algo como:
+
+```javascript
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Users', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+      },
+    });
+  },
+  down: async (queryInterface) => {
+    await queryInterface.dropTable('Users');
+  },
+};
+```
+
+- **`up`**: Insere dados na tabela `users`. Aqui você pode adicionar os dados de teste para popular a tabela.
+- **`down`**: Remove os dados inseridos, permitindo que você reverta o seeder.
+
+**1.3. Executar o Seeder**
+
+Agora que você criou e editou o seeder, é hora de executá-lo para popular a tabela `users` no banco de dados. No terminal, execute o seguinte comando:
+
+```bash
+npx sequelize-cli db:seed:all
+```
+
+Esse comando vai executar todos os seeders na pasta `seeders`, incluindo o que você acabou de criar, e populará a tabela `users` com os dados que você definiu no seeder.
+
+**2. Verificar os Dados no Banco de Dados**
+
+Após executar o seeder, você pode verificar os dados na tabela `users` do banco de dados utilizando uma ferramenta de gerenciamento de banco de dados (como MySQL Workbench, DBeaver ou diretamente no MySQL CLI) ou fazendo uma requisição GET para a rota de listar todos os usuários na sua API.
+
+**3. Reverter o Seeder (opcional)**
+
+Se você quiser remover os dados inseridos pelo seeder, basta executar o seguinte comando para rodar a função `down` do seu seeder:
+
+```bash
+npx sequelize-cli db:seed:undo:all
+```
+
+Isso vai reverter todas as alterações feitas pelos seeders, apagando os dados inseridos na tabela `users`.
+
+**Resumo dos Comandos**
+
+- **Gerar um seeder**: `npx sequelize-cli seed:generate --name demo-user`
+- **Executar todos os seeders**: `npx sequelize-cli db:seed:all`
+- **Reverter todos os seeders**: `npx sequelize-cli db:seed:undo:all`
+
+Com esses passos, você poderá facilmente popular sua tabela `users` com dados de teste e usar para testar sua API.
+
+---
+
+#### 2.11 Testando as APIs no Postman
+
+Para testar as APIs no **Postman**, você pode seguir esses passos:
+
+**1. Verifique se o servidor está rodando**
+Antes de começar a testar as rotas no Postman, certifique-se de que o servidor está funcionando corretamente. Quando você rodar o comando `npm run dev`, o servidor deverá estar acessível, normalmente na URL `http://localhost:3001`.
+
+**2. Teste cada uma das rotas no Postman**
+
+Aqui estão os detalhes de como testar cada uma das rotas:
+
+**Criar um novo usuário (POST)**
+
+1. **Método:** `POST`
+2. **URL:** `http://localhost:3001/api/users`
+3. **Body:** Selecione o tipo `raw` e `JSON` no Postman.
+4. **Exemplo de corpo JSON (body):**
+   ```json
+   {
+       "name": "Renato Gomes",
+       "email": "renato.gomes@example.com",
+       "password": "password123"
+   }
+   ```
+   **Passos:**
+   - No Postman, escolha `POST` no método.
+   - Defina a URL `http://localhost:3001/api/users`.
+   - No `Body`, selecione `raw` e `JSON`, e cole o exemplo de corpo acima.
+   - Clique em "Send" para enviar a requisição.
+
+**Listar todos os usuários (GET)**
+
+1. **Método:** `GET`
+2. **URL:** `http://localhost:3001/api/users`
+3. **Passos:**
+   - No Postman, escolha `GET` no método.
+   - Defina a URL `http://localhost:3001/api/users`.
+   - Clique em "Send" para enviar a requisição.
+   - Você verá a resposta com todos os usuários cadastrados no banco de dados.
+
+**Buscar um usuário por ID (GET)**
+
+1. **Método:** `GET`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja buscar, por exemplo: `http://localhost:3001/api/users/1`)
+3. **Passos:**
+   - No Postman, escolha `GET` no método.
+   - Defina a URL substituindo o `:id` pelo ID do usuário (por exemplo, `http://localhost:3001/api/users/1`).
+   - Clique em "Send" para enviar a requisição.
+   - Se o usuário existir, ele será retornado. Caso contrário, você verá a mensagem "Usuário não encontrado".
+
+**Modificar um usuário por ID (PUT)**
+
+1. **Método:** `PUT`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja modificar)
+3. **Body:** Selecione o tipo `raw` e `JSON` no Postman.
+4. **Exemplo de corpo JSON (body):**
+   ```json
+   {
+       "name": "Renato Gomes Modificado",
+       "email": "renato.modificado@example.com",
+       "password": "password123"
+   }
+   ```
+   **Passos:**
+   - No Postman, escolha `PUT` no método.
+   - Defina a URL com o ID do usuário que você deseja modificar (por exemplo, `http://localhost:3001/api/users/1`).
+   - No `Body`, selecione `raw` e `JSON`, e cole o exemplo de corpo acima.
+   - Clique em "Send" para enviar a requisição.
+   - O usuário modificado será retornado. Caso não encontre o usuário, você verá a mensagem "Usuário não encontrado".
+
+**Remover um usuário por ID (DELETE)**
+
+1. **Método:** `DELETE`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja excluir)
+3. **Passos:**
+   - No Postman, escolha `DELETE` no método.
+   - Defina a URL com o ID do usuário que você deseja excluir (por exemplo, `http://localhost:3001/api/users/1`).
+   - Clique em "Send" para enviar a requisição.
+   - Se o usuário for encontrado, ele será removido. Caso contrário, você verá a mensagem "Usuário não encontrado".
+
+**3. Resposta esperada**
+
+- Para **POST**, você deve ver um JSON com o usuário criado e o código de status `201`.
+- Para **GET**, você verá a lista de usuários (no caso do `/api/users`) ou o usuário específico (no caso do `/api/users/:id`).
+- Para **PUT**, você verá o usuário atualizado ou a mensagem de erro se o usuário não for encontrado.
+- Para **DELETE**, você verá a confirmação de remoção ou a mensagem de erro se o usuário não for encontrado.
+
+**4. Erros comuns**
+
+- **Erro 404**: A rota que você está tentando acessar não existe. Verifique a URL no Postman.
+- **Erro 500**: Problema no servidor, como erro no código ou no banco de dados. Verifique os logs do servidor para mais detalhes.
+- **Erro 400 ou 422**: Dados inválidos enviados na requisição (por exemplo, dados no formato errado). Verifique o formato do corpo da requisição.
+
+**5. Verificação de logs**
+
+Você pode verificar os logs no terminal onde o servidor está rodando (se você tiver configurado para exibir erros no console). Isso pode ajudar a depurar eventuais problemas ao interagir com o banco de dados ou ao processar as requisições.
+
+Após realizar esses passos, você será capaz de testar e interagir com sua API diretamente no Postman!
+
+#### 2.12 Configurando o Swagger
+
+Configurar o Swagger em um projeto Node.js com **Express** é útil para documentar e testar APIs. Aqui está um guia para configurar o Swagger em seu projeto:
+
+---
+
+### Passo 1: Instalar dependências
+
+Execute os comandos abaixo para instalar as bibliotecas necessárias:
+
+```bash
+npm install swagger-jsdoc swagger-ui-express
+```
+
+---
+
+### Passo 2: Configurar a documentação do Swagger
+
+Crie um arquivo para a configuração, por exemplo, `swaggerConfig.mjs`:
+
+```javascript
+import swaggerJSDoc from 'swagger-jsdoc';
+
+const swaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+        title: 'API Documentation',
+        version: '1.0.0',
+        description: 'Documentação da API usando Swagger',
+    },
+    servers: [
+        {
+            url: 'http://localhost:3001', // URL base da API
+        },
+    ],
+};
+
+const options = {
+    swaggerDefinition,
+    apis: ['./src/routes/*.mjs'], // Caminho para os arquivos onde estão as rotas
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+export default swaggerSpec;
+```
+
+---
+
+### Passo 3: Integrar Swagger ao Express
+
+No arquivo principal, por exemplo, `server.mjs`:
+
+```javascript
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from '../config/swaggerConfig.mjs'; // Caminho para o arquivo de configuração do Swagger
+import userRoutes from './routes/userRoutes.mjs';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+app.use(express.json());
+
+// Documentação Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Rotas
+app.use('/api/users', userRoutes);
+
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}. Documentação disponível em http://localhost:${PORT}/api-docs`));
+```
+
+---
+
+### Passo 4: Documentar as rotas
+
+Adicione comentários no formato Swagger acima de suas rotas no arquivo `userRoutes.mjs`:
+
+```javascript
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: ID do usuário
+ *         name:
+ *           type: string
+ *           description: Nome do usuário
+ *         email:
+ *           type: string
+ *           description: E-mail do usuário
+ *         password:
+ *           type: string
+ *           description: Senha do usuário
+ *       example:
+ *         name: João Silva
+ *         email: joao.silva@example.com
+ *         password: password123
+ */
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Lista todos os usuários
+ *     responses:
+ *       200:
+ *         description: Lista de usuários.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
+router.get('/', async (req, res) => {
+    const users = await listAllUsers();
+    res.status(200).json(users);
+});
+```
+
+---
+
+### Passo 5: Testar a documentação
+
+1. Inicie o servidor:
+   ```bash
+   npm run dev
+   ```
+
+2. Acesse a documentação em:
+   ```
+   http://localhost:3001/api-docs
+   ```
+
+Você verá uma interface gráfica interativa para testar suas rotas diretamente.
+
+---
+
+### Dicas
+
+- **Automatizar o processo:** Certifique-se de manter os comentários atualizados para que o Swagger reflita suas APIs corretamente.
+- **Adicionar autenticação:** Use **bearer tokens** no Swagger se sua API exige autenticação.
+- **Organizar schemas:** Mova as definições do `components.schemas` para um arquivo separado caso tenha muitas entidades.
 
 ### **Passo 3: Configuração do Front-End com React**
 

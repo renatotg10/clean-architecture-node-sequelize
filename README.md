@@ -55,7 +55,13 @@ cd clean-architecture-node-sequelize
    ```bash
    npm install
    ```
-3. Crie o arquivo `.env` com as variáveis de ambiente:
+3. Copie o arquivo `.env-example` para `.env`
+
+```
+copy .env-example .env
+```
+
+O `.env` deve conter as variáveis de ambiente:
    ```
    DB_HOST=localhost
    DB_USER=root
@@ -65,11 +71,15 @@ cd clean-architecture-node-sequelize
    DB_DIALECT=mysql
    PORT=3001
    ```
-4. Rode as migrações para criar as tabelas no banco:
+4. Crie o banco de dados:
+  ```bash
+  mysql -u root -p -e "CREATE DATABASE nome_do_banco_de_dados;"
+  ```
+5. Rode as migrações para criar as tabelas no banco:
    ```bash
    npx sequelize db:migrate
    ```
-5. Inicie o servidor:
+6. Inicie o servidor:
    ```bash
    npm start
    ```
@@ -123,6 +133,154 @@ cd clean-architecture-node-sequelize
    ```
 
 ---
+
+## Executando o Seeder para Testes
+
+Execute o Seeder para popular a tabela `users` no banco de dados para poder fazer testes. No terminal, execute o seguinte comando:
+
+```bash
+npx sequelize-cli db:seed:all
+```
+
+Esse comando vai executar todos os seeders na pasta `seeders`, incluindo o que você acabou de criar, e populará a tabela `users` com os dados que você definiu no seeder.
+
+**2. Verificar os Dados no Banco de Dados**
+
+Após executar o seeder, você pode verificar os dados na tabela `users` do banco de dados utilizando uma ferramenta de gerenciamento de banco de dados (como MySQL Workbench, DBeaver ou diretamente no MySQL CLI) ou fazendo uma requisição GET para a rota de listar todos os usuários na sua API.
+
+**3. Reverter o Seeder (opcional)**
+
+Se você quiser remover os dados inseridos pelo seeder, basta executar o seguinte comando para rodar a função `down` do seu seeder:
+
+```bash
+npx sequelize-cli db:seed:undo:all
+```
+
+Isso vai reverter todas as alterações feitas pelos seeders, apagando os dados inseridos na tabela `users`.
+
+**Resumo dos Comandos**
+
+- **Executar todos os seeders**: `npx sequelize-cli db:seed:all`
+- **Reverter todos os seeders**: `npx sequelize-cli db:seed:undo:all`
+
+Com esses passos, você poderá facilmente popular sua tabela `users` com dados de teste e usar para testar sua API.
+
+---
+
+## Testando as APIs no Postman
+
+Para testar as APIs no **Postman**, você pode seguir esses passos:
+
+### 1. **Verifique se o servidor está rodando**
+Antes de começar a testar as rotas no Postman, certifique-se de que o servidor está funcionando corretamente. Quando você rodar o comando `npm run dev`, o servidor deverá estar acessível, normalmente na URL `http://localhost:3001`.
+
+### 2. **Teste cada uma das rotas no Postman**
+
+Para testar as APIs no **Postman**, você pode seguir esses passos:
+
+**1. Verifique se o servidor está rodando**
+Antes de começar a testar as rotas no Postman, certifique-se de que o servidor está funcionando corretamente. Quando você rodar o comando `npm run dev`, o servidor deverá estar acessível, normalmente na URL `http://localhost:3001`.
+
+**2. Teste cada uma das rotas no Postman**
+
+Aqui estão os detalhes de como testar cada uma das rotas:
+
+**Criar um novo usuário (POST)**
+
+1. **Método:** `POST`
+2. **URL:** `http://localhost:3001/api/users`
+3. **Body:** Selecione o tipo `raw` e `JSON` no Postman.
+4. **Exemplo de corpo JSON (body):**
+   ```json
+   {
+       "name": "Renato Gomes",
+       "email": "renato.gomes@example.com",
+       "password": "password123"
+   }
+   ```
+   **Passos:**
+   - No Postman, escolha `POST` no método.
+   - Defina a URL `http://localhost:3001/api/users`.
+   - No `Body`, selecione `raw` e `JSON`, e cole o exemplo de corpo acima.
+   - Clique em "Send" para enviar a requisição.
+
+**Listar todos os usuários (GET)**
+
+1. **Método:** `GET`
+2. **URL:** `http://localhost:3001/api/users`
+3. **Passos:**
+   - No Postman, escolha `GET` no método.
+   - Defina a URL `http://localhost:3001/api/users`.
+   - Clique em "Send" para enviar a requisição.
+   - Você verá a resposta com todos os usuários cadastrados no banco de dados.
+
+**Buscar um usuário por ID (GET)**
+
+1. **Método:** `GET`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja buscar, por exemplo: `http://localhost:3001/api/users/1`)
+3. **Passos:**
+   - No Postman, escolha `GET` no método.
+   - Defina a URL substituindo o `:id` pelo ID do usuário (por exemplo, `http://localhost:3001/api/users/1`).
+   - Clique em "Send" para enviar a requisição.
+   - Se o usuário existir, ele será retornado. Caso contrário, você verá a mensagem "Usuário não encontrado".
+
+**Modificar um usuário por ID (PUT)**
+
+1. **Método:** `PUT`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja modificar)
+3. **Body:** Selecione o tipo `raw` e `JSON` no Postman.
+4. **Exemplo de corpo JSON (body):**
+   ```json
+   {
+       "name": "Renato Gomes Modificado",
+       "email": "renato.modificado@example.com",
+       "password": "password123"
+   }
+   ```
+   **Passos:**
+   - No Postman, escolha `PUT` no método.
+   - Defina a URL com o ID do usuário que você deseja modificar (por exemplo, `http://localhost:3001/api/users/1`).
+   - No `Body`, selecione `raw` e `JSON`, e cole o exemplo de corpo acima.
+   - Clique em "Send" para enviar a requisição.
+   - O usuário modificado será retornado. Caso não encontre o usuário, você verá a mensagem "Usuário não encontrado".
+
+**Remover um usuário por ID (DELETE)**
+
+1. **Método:** `DELETE`
+2. **URL:** `http://localhost:3001/api/users/:id` (substitua `:id` pelo ID do usuário que você deseja excluir)
+3. **Passos:**
+   - No Postman, escolha `DELETE` no método.
+   - Defina a URL com o ID do usuário que você deseja excluir (por exemplo, `http://localhost:3001/api/users/1`).
+   - Clique em "Send" para enviar a requisição.
+   - Se o usuário for encontrado, ele será removido. Caso contrário, você verá a mensagem "Usuário não encontrado".
+
+**3. Resposta esperada**
+
+- Para **POST**, você deve ver um JSON com o usuário criado e o código de status `201`.
+- Para **GET**, você verá a lista de usuários (no caso do `/api/users`) ou o usuário específico (no caso do `/api/users/:id`).
+- Para **PUT**, você verá o usuário atualizado ou a mensagem de erro se o usuário não for encontrado.
+- Para **DELETE**, você verá a confirmação de remoção ou a mensagem de erro se o usuário não for encontrado.
+
+**4. Erros comuns**
+
+- **Erro 404**: A rota que você está tentando acessar não existe. Verifique a URL no Postman.
+- **Erro 500**: Problema no servidor, como erro no código ou no banco de dados. Verifique os logs do servidor para mais detalhes.
+- **Erro 400 ou 422**: Dados inválidos enviados na requisição (por exemplo, dados no formato errado). Verifique o formato do corpo da requisição.
+
+**5. Verificação de logs**
+
+Você pode verificar os logs no terminal onde o servidor está rodando (se você tiver configurado para exibir erros no console). Isso pode ajudar a depurar eventuais problemas ao interagir com o banco de dados ou ao processar as requisições.
+
+Após realizar esses passos, você será capaz de testar e interagir com sua API diretamente no Postman!
+
+## Acessando o Swagger
+
+Acesse a documentação em:
+   ```
+   http://localhost:3001/api-docs
+   ```
+
+Você verá uma interface gráfica interativa para testar suas rotas diretamente.
 
 ## 🧩 Contribuindo
 
