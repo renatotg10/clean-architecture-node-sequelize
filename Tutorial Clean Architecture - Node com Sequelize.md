@@ -7,9 +7,9 @@ Segue um tutorial completo para criar um CRUD utilizando **React** no Front-End,
 
 ---
 
-### 🛠️ **Passo 1: Configuração do Projeto Back-End**
+## 🛠️ **Passo 1: Configuração do Projeto Back-End**
 
-#### 1.1. Criar o projeto
+### 1.1. Criar o projeto
 ```bash
 mkdir backend
 cd backend
@@ -32,7 +32,7 @@ Essa abordagem é útil quando você quer configurar rapidamente um projeto e n�
 
 ---
 
-#### 1.2. Instalar as dependências
+### 1.2. Instalar as dependências
 ```bash
 npm install express sequelize mysql2 dotenv bcrypt
 npm install --save-dev nodemon eslint
@@ -64,7 +64,7 @@ O comando `npm install express sequelize mysql2 dotenv` instala quatro pacotes n
 
    - **Função**: Gerencia variáveis de ambiente de forma segura e prática, carregando-as de um arquivo `.env`.
 
-### O que o comando faz:
+**O que o comando faz:**
 
 Quando você executa `npm install express sequelize mysql2 dotenv`, ele:
 
@@ -82,21 +82,21 @@ O comando `npm install --save-dev nodemon eslint` instala dois pacotes no seu pr
 
 Vamos entender o que cada um desses pacotes faz:
 
-### 1. **nodemon**
+#### 1. **nodemon**
    - **Função**: O `nodemon` é uma ferramenta de desenvolvimento que monitora as alterações nos arquivos do seu projeto e reinicia automaticamente o servidor Node.js sempre que detecta mudanças no código-fonte. Isso é muito útil durante o desenvolvimento, pois evita que você tenha que parar e iniciar o servidor manualmente a cada modificação no código.
    
    - **Exemplo de uso**: Em vez de rodar o comando `node app.js` para iniciar o servidor, você pode usar `nodemon app.js`, e ele reiniciará o servidor automaticamente sempre que você salvar um arquivo.
 
    - **Comando**: `nodemon` é usado como um substituto do `node` para manter o servidor rodando e sempre atualizado com as últimas alterações no código.
 
-### 2. **eslint**
+#### 2. **eslint**
    - **Função**: O `eslint` é uma ferramenta de linting para JavaScript, que analisa o código-fonte em busca de problemas de estilo, erros de sintaxe e padrões que podem ser melhorados. O ESLint ajuda a manter o código consistente e livre de erros, garantindo que você siga boas práticas de programação e evite bugs.
    
    - **Exemplo de uso**: O ESLint verifica o código à medida que você escreve, apontando problemas como variáveis não utilizadas, declarações de variáveis com escopo errado, ou problemas de formatação como espaços extras.
 
    - **Comando**: `eslint` pode ser executado através de linha de comando para analisar arquivos ou diretórios inteiros, e também pode ser integrado ao seu editor de código para fornecer feedback em tempo real.
 
-### O que o comando faz:
+#### O que o comando faz:
 
 - **Instalar dependências de desenvolvimento**: A flag `--save-dev` faz com que o `nodemon` e o `eslint` sejam registrados na seção `devDependencies` do seu `package.json`. Isso significa que esses pacotes são necessários apenas durante o desenvolvimento, mas não para a produção.
   
@@ -113,7 +113,7 @@ Vamos entender o que cada um desses pacotes faz:
 
 - **Instalação no diretório `node_modules`**: Esses pacotes serão instalados na pasta `node_modules`, mas, como dependências de desenvolvimento, eles não serão incluídos quando você rodar o comando `npm install --production`, que instala apenas as dependências de produção.
 
-### Resumo do comando:
+#### Resumo do comando:
 
 `npm install --save-dev nodemon eslint` instala o `nodemon` (para reiniciar o servidor automaticamente durante o desenvolvimento) e o `eslint` (para garantir a qualidade do código com linting), e os adiciona à seção `devDependencies` do seu `package.json`.
 
@@ -121,7 +121,7 @@ Esses pacotes são especialmente úteis para melhorar a experiência de desenvol
 
 ---
 
-#### 1.3. Configurar o `dotenv`
+### 1.3. Configurar o `dotenv`
 Crie um arquivo `.env` para armazenar as configurações do banco:
 ```plaintext
 DB_HOST=localhost
@@ -135,7 +135,7 @@ PORT=3001
 
 ---
 
-#### 1.4. Estrutura de pastas para Clean Architecture
+### 1.4. Estrutura de pastas para Clean Architecture
 ```plaintext
 backend/
 ├── src/
@@ -205,7 +205,7 @@ Isso criará a estrutura de diretórios e arquivos automaticamente. Após rodar 
 
 ---
 
-#### 1.5 Criação do Banco de Dados (crud_database)
+### 1.5 Criação do Banco de Dados (crud_database)
 
 Para **criar um banco de dados diretamente no terminal do CMD**, sem acessar o MySQL interativamente, use o comando:
 
@@ -236,9 +236,9 @@ Onde poderá confirmar que foi criado o banco de dados `crud_database`.
 
 ---
 
-### **Back-End: Desenvolvimento**
+## **Passo 2: Back-End: Desenvolvimento**
 
-#### 2.1. Configurando a Conexão com o Banco de Dados (config/config.js)
+### 2.1. Configurando a Conexão com o Banco de Dados (config/config.js)
 
 ```bash
 npx sequelize-cli init
@@ -246,7 +246,7 @@ del config\config.json
 echo \\ config.js > config\config.js
 ```
 
-### Resumo do que cada comando faz:
+#### Resumo do que cada comando faz:
 
 1. **`npx sequelize-cli init`**: Cria a estrutura inicial do projeto Sequelize, incluindo diretórios e arquivos padrões, como `config.json`.
 
@@ -299,7 +299,7 @@ module.exports = {
 
 ---
 
-#### 2.2. Configurando o Banco de Dados (`src/config/database.mjs`)
+### 2.2. Configurando o Banco de Dados (`src/config/database.mjs`)
 ```javascript
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
@@ -317,7 +317,7 @@ export default sequelize;
 
 ---
 
-#### 2.3. Criando o Modelo e Migration (`src/infrastructure/models/user.mjs`)
+### 2.3. Criando o Modelo e Migration (`src/infrastructure/models/user.mjs`)
 Modelo:
 ```javascript
 import { DataTypes } from 'sequelize';
@@ -393,7 +393,7 @@ npx sequelize-cli db:migrate
 
 ---
 
-#### 2.4. Criar o Repositório (`src/infrastructure/repositories/userRepository.mjs`)
+### 2.4. Criar o Repositório (`src/infrastructure/repositories/userRepository.mjs`)
 ```javascript
 import bcrypt from 'bcrypt';
 import User from '../models/user.mjs';
@@ -434,7 +434,7 @@ export const deleteUser = async (id) => {
 
 ---
 
-#### 2.5. Criar os Casos de Uso (`src/usecases/userUseCase.mjs`)
+### 2.5. Criar os Casos de Uso (`src/usecases/userUseCase.mjs`)
 ```javascript
 import { createUser, getAllUsers, getUserById, updateUser, deleteUser } from '../infrastructure/repositories/userRepository.mjs';
 
@@ -451,7 +451,7 @@ export const removeUser = async (id) => deleteUser(id);
 
 ---
 
-#### 2.6. Criar as Rotas (`src/app/routes/userRoutes.mjs`)
+### 2.6. Criar as Rotas (`src/app/routes/userRoutes.mjs`)
 ```javascript
 import express from 'express';
 import { createNewUser, listAllUsers, findUser, modifyUser, removeUser } from '../../usecases/userUseCase.mjs';
@@ -488,7 +488,7 @@ export default router;
 
 ---
 
-#### 2.7. Configurar o Servidor (`src/app/server.mjs`)
+### 2.7. Configurar o Servidor (`src/app/server.mjs`)
 ```javascript
 import express from 'express';
 import userRoutes from './routes/userRoutes.mjs';
@@ -511,7 +511,7 @@ app.use('/api/users', userRoutes);
 })();
 ```
 
-#### 2.8. Configurar o Servidor (`package.json`)
+### 2.8. Configurar o Servidor (`package.json`)
 
 Para facilitar o processo de inicialização, você pode configurar o script de inicialização no `package.json`.
 
@@ -527,7 +527,7 @@ Abra o arquivo `package.json` e adicione o seguinte script em `"scripts"`:
 - O comando `start` inicia o servidor normalmente.
 - O comando `dev` utiliza o **Nodemon**, que reinicia o servidor automaticamente sempre que você faz alterações no código.
 
-#### 2.9 Executando o Servidor
+### 2.9 Executando o Servidor
 
 **1. Rodando no Modo de Produção**
 Se você não estiver utilizando o **Nodemon** para desenvolvimento e preferir rodar o servidor normalmente, execute:
@@ -545,7 +545,7 @@ npm run dev
 
 ---
 
-#### 2.10 Criando um **seeder** no Sequelize para teste da API
+### 2.10 Criando um **seeder** no Sequelize para teste da API
 
 Para criar um **seeder** no Sequelize e popular a tabela `users` com dados de teste, você pode seguir os passos abaixo:
 
@@ -568,40 +568,42 @@ Este comando vai gerar um arquivo na pasta `seeders` com um nome similar a `2024
 Abra o arquivo gerado na pasta `seeders` (por exemplo, `20240101010101-demo-user.js`). Você verá um template básico. Agora, edite para popular a tabela `users` com dados de teste. O conteúdo do arquivo pode ser algo como:
 
 ```javascript
+'use strict';
+
+const bcrypt = require('bcrypt'); // Adicione esta linha
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Users', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+    const hashedPassword = await bcrypt.hash('password123', 10);
+
+    await queryInterface.bulkInsert('Users', [
+      {
+        name: 'João Silva',
+        email: 'joao.silva@example.com',
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      {
+        name: 'Maria Oliveira',
+        email: 'maria.oliveira@example.com',
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-      },
-    });
+      {
+        name: 'Pedro Souza',
+        email: 'pedro.souza@example.com',
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ]);
   },
-  down: async (queryInterface) => {
-    await queryInterface.dropTable('Users');
-  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete('Users', null, {}); // Certifique-se de usar o nome correto da tabela
+  }
 };
 ```
 
@@ -642,7 +644,7 @@ Com esses passos, você poderá facilmente popular sua tabela `users` com dados 
 
 ---
 
-#### 2.11 Testando as APIs no Postman
+### 2.11 Testando as APIs no Postman
 
 Para testar as APIs no **Postman**, você pode seguir esses passos:
 
@@ -741,13 +743,13 @@ Você pode verificar os logs no terminal onde o servidor está rodando (se você
 
 Após realizar esses passos, você será capaz de testar e interagir com sua API diretamente no Postman!
 
-#### 2.12 Configurando o Swagger
+### 2.12 Configurando o Swagger
 
 Configurar o Swagger em um projeto Node.js com **Express** é útil para documentar e testar APIs. Aqui está um guia para configurar o Swagger em seu projeto:
 
 ---
 
-### Passo 1: Instalar dependências
+**Passo 1: Instalar dependências**
 
 Execute os comandos abaixo para instalar as bibliotecas necessárias:
 
@@ -757,7 +759,7 @@ npm install swagger-jsdoc swagger-ui-express
 
 ---
 
-### Passo 2: Configurar a documentação do Swagger
+**Passo 2: Configurar a documentação do Swagger**
 
 Crie um arquivo para a configuração, por exemplo, `swaggerConfig.mjs`:
 
@@ -790,7 +792,7 @@ export default swaggerSpec;
 
 ---
 
-### Passo 3: Integrar Swagger ao Express
+**Passo 3: Integrar Swagger ao Express**
 
 No arquivo principal, por exemplo, `server.mjs`:
 
@@ -816,7 +818,7 @@ app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}. Documenta
 
 ---
 
-### Passo 4: Documentar as rotas
+**Passo 4: Documentar as rotas**
 
 Adicione comentários no formato Swagger acima de suas rotas no arquivo `userRoutes.mjs`:
 
@@ -873,7 +875,7 @@ router.get('/', async (req, res) => {
 
 ---
 
-### Passo 5: Testar a documentação
+**Passo 5: Testar a documentação**
 
 1. Inicie o servidor:
    ```bash
@@ -889,26 +891,26 @@ Você verá uma interface gráfica interativa para testar suas rotas diretamente
 
 ---
 
-### Dicas
+**Dicas**
 
 - **Automatizar o processo:** Certifique-se de manter os comentários atualizados para que o Swagger reflita suas APIs corretamente.
 - **Adicionar autenticação:** Use **bearer tokens** no Swagger se sua API exige autenticação.
 - **Organizar schemas:** Mova as definições do `components.schemas` para um arquivo separado caso tenha muitas entidades.
 
-### **Passo 3: Configuração do Front-End com React**
+## **Passo 3: Configuração do Front-End com React**
 
-#### 3.1. Criar o projeto React
+### 3.1. Criar o projeto React
 ```bash
 npx create-react-app my-crud-app-frontend
 cd my-crud-app-frontend
 ```
 
-#### 3.2. Instalar as dependências necessárias
+### 3.2. Instalar as dependências necessárias
 ```bash
 npm install axios bootstrap react-router-dom
 ```
 
-#### 3.3. Configurar o Bootstrap
+### 3.3. Configurar o Bootstrap
 No arquivo `src/index.js`, importe o Bootstrap:
 ```javascript
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -921,9 +923,9 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ---
 
-### **Desenvolvimento do Front-End**
+## **Passo 4: Desenvolvimento do Front-End**
 
-#### 3.4. Estrutura do projeto Front-End
+### 4.1. Estrutura do projeto Front-End
 ```plaintext
 my-crud-app-frontend/
 ├── src/
@@ -943,7 +945,7 @@ my-crud-app-frontend/
 
 ---
 
-#### 3.5. Criar o arquivo de API (`src/api.js`)
+### 4.2. Criar o arquivo de API (`src/api.js`)
 ```javascript
 import axios from 'axios';
 
@@ -962,7 +964,7 @@ export const deleteUser = (id) => axios.delete(`${API_URL}/${id}`);
 
 ---
 
-#### 3.6. Criar o componente Navbar (`src/components/Navbar.js`)
+### 4.3. Criar o componente Navbar (`src/components/Navbar.js`)
 ```javascript
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -990,7 +992,7 @@ export default Navbar;
 
 ---
 
-#### 3.7. Criar o componente UserTable (`src/components/UserTable.js`)
+### 4.4. Criar o componente UserTable (`src/components/UserTable.js`)
 ```javascript
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -1026,7 +1028,7 @@ export default UserTable;
 
 ---
 
-#### 3.8. Criar o componente UserForm (`src/components/UserForm.js`)
+### 4.5. Criar o componente UserForm (`src/components/UserForm.js`)
 ```javascript
 import React, { useState } from 'react';
 
@@ -1088,9 +1090,9 @@ export default UserForm;
 
 ---
 
-#### 3.9. Criar as páginas (`src/pages/`)
+### 4.6. Criar as páginas (`src/pages/`)
 
-##### **Home.js**
+#### **Home.js**
 ```javascript
 import React, { useEffect, useState } from 'react';
 import { getUsers, deleteUser } from '../api';
@@ -1124,7 +1126,7 @@ const Home = () => {
 export default Home;
 ```
 
-##### **AddUser.js**
+#### **AddUser.js**
 ```javascript
 import React from 'react';
 import { createUser } from '../api';
@@ -1150,7 +1152,7 @@ const AddUser = () => {
 export default AddUser;
 ```
 
-##### **EditUser.js**
+#### **EditUser.js**
 ```javascript
 import React, { useEffect, useState } from 'react';
 import { getUserById, updateUser } from '../api';
@@ -1189,7 +1191,7 @@ export default EditUser;
 
 ---
 
-#### 3.10. Configurar o Router (`src/App.js`)
+### 4.7. Configurar o Router (`src/App.js`)
 ```javascript
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
