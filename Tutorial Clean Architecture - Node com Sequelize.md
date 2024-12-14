@@ -210,7 +210,7 @@ Isso criará a estrutura de diretórios e arquivos automaticamente. Após rodar 
 Para **criar um banco de dados diretamente no terminal do CMD**, sem acessar o MySQL interativamente, use o comando:
 
   ```bash
-  mysql -u root -p -e "CREATE DATABASE nome_do_banco_de_dados;"
+  mysql -u root -p -e "CREATE DATABASE crud_database;"
   ```
 
 Para **listar todos os bancos de dados** sem entrar no MySQL:

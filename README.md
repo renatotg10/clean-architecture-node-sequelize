@@ -73,7 +73,7 @@ O `.env` deve conter as variáveis de ambiente:
    ```
 4. Crie o banco de dados:
   ```bash
-  mysql -u root -p -e "CREATE DATABASE nome_do_banco_de_dados;"
+  mysql -u root -p -e "CREATE DATABASE crud_database;"
   ```
 5. Rode as migrações para criar as tabelas no banco:
    ```bash
