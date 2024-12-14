@@ -1,5 +1,5 @@
 # Tutorial CRUD com Node.js utilizando Clean Architecture
-`Renato Teixeira Gomes - renatotg10@gmail.com`
+`Renato Teixeira Gomes - renatotgomesdev@gmail.com`
 
 Tutorial completo para criar um CRUD utilizando React no Front-End, Express no Back-End (API), Sequelize como ORM, e implementando a Clean Architecture. Usaremos MySQL como banco de dados, dotenv para gerenciamento de variáveis de ambiente e Bootstrap para estilização.
 
@@ -11,6 +11,8 @@ Segue um tutorial completo para criar um CRUD utilizando **React** no Front-End,
 
 ### 1.1. Criar o projeto
 ```bash
+mkdir clean-architecture-node-sequelize
+cd clean-architecture-node-sequelize
 mkdir backend
 cd backend
 npm init -y
@@ -1090,8 +1092,9 @@ Você verá uma interface gráfica interativa para testar suas rotas diretamente
 
 ### 3.1. Criar o projeto React
 ```bash
-npx create-react-app my-crud-app-frontend
-cd my-crud-app-frontend
+cd clean-architecture-node-sequelize
+npx create-react-app frontend
+cd frontend
 ```
 
 ### 3.2. Instalar as dependências necessárias
@@ -1116,7 +1119,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ### 4.1. Estrutura do projeto Front-End
 ```plaintext
-my-crud-app-frontend/
+frontend/
 ├── src/
 │   ├── components/
 │   │   ├── Navbar.js

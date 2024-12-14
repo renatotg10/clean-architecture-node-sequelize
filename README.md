@@ -1,5 +1,5 @@
 # CRUD com Node.js utilizando Clean Architecture
-`Renato Teixeira Gomes - renatotg10@gmail.com`
+`Renato Teixeira Gomes - renatotgomesdev@gmail.com`
 
 Este projeto é um exemplo de CRUD (Create, Read, Update, Delete) utilizando a **Clean Architecture**, com tecnologias modernas no Front-End e Back-End.
 
