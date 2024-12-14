@@ -232,9 +232,9 @@ Aqui estão os detalhes de como testar cada uma das rotas:
 4. **Exemplo de corpo JSON (body):**
    ```json
    {
-       "name": "Renato Gomes Modificado",
-       "email": "renato.modificado@example.com",
-       "password": "password123"
+      "name": "João Silva Modificado",
+      "email": "joao.modificado@example.com",
+      "password": "password123"
    }
    ```
    **Passos:**
