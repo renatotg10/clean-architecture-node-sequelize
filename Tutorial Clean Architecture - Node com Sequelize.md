@@ -188,7 +188,7 @@ echo // index.mjs > src\index.mjs
 echo Estrutura criada com sucesso!
 ```
 
-Execute o arquivo `create-structure.bat`:
+Execute o arquivo `backend/create-structure.bat`:
 ```bash
 create-structure.bat
 ```
@@ -299,7 +299,7 @@ module.exports = {
 
 ---
 
-### 2.2. Configurando o Banco de Dados (`src/config/database.mjs`)
+### 2.2. Configurando o Banco de Dados (`backend/src/config/database.mjs`)
 ```javascript
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
@@ -317,7 +317,7 @@ export default sequelize;
 
 ---
 
-### 2.3. Criando o Modelo e Migration (`src/infrastructure/models/user.mjs`)
+### 2.3. Criando o Modelo e Migration (`backend/src/infrastructure/models/user.mjs`)
 Modelo:
 ```javascript
 import { DataTypes } from 'sequelize';
@@ -347,7 +347,7 @@ Migration (criar tabela no banco de dados):
 npx sequelize-cli migration:generate --name create-users
 ```
 
-Abra o arquivo gerado em `migrations` e configure:
+Abra o arquivo gerado em `backend/migrations/` (exemplo: `backend/migrations/20241130091208-create-users.js`) e configure:
 ```javascript
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -393,7 +393,7 @@ npx sequelize-cli db:migrate
 
 ---
 
-### 2.4. Criar o Repositório (`src/infrastructure/repositories/userRepository.mjs`)
+### 2.4. Criar o Repositório (`backend/src/infrastructure/repositories/userRepository.mjs`)
 ```javascript
 import bcrypt from 'bcrypt';
 import User from '../models/user.mjs';
@@ -434,7 +434,7 @@ export const deleteUser = async (id) => {
 
 ---
 
-### 2.5. Criar os Casos de Uso (`src/usecases/userUseCase.mjs`)
+### 2.5. Criar os Casos de Uso (`backend/src/usecases/userUseCase.mjs`)
 ```javascript
 import { createUser, getAllUsers, getUserById, updateUser, deleteUser } from '../infrastructure/repositories/userRepository.mjs';
 
@@ -451,7 +451,7 @@ export const removeUser = async (id) => deleteUser(id);
 
 ---
 
-### 2.6. Criar as Rotas (`src/app/routes/userRoutes.mjs`)
+### 2.6. Criar as Rotas (`backend/src/app/routes/userRoutes.mjs`)
 ```javascript
 import express from 'express';
 import { createNewUser, listAllUsers, findUser, modifyUser, removeUser } from '../../usecases/userUseCase.mjs';
@@ -488,7 +488,7 @@ export default router;
 
 ---
 
-### 2.7. Configurar o Servidor (`src/app/server.mjs`)
+### 2.7. Configurar o Servidor (`backend/src/app/server.mjs`)
 ```javascript
 import express from 'express';
 import userRoutes from './routes/userRoutes.mjs';
@@ -511,7 +511,7 @@ app.use('/api/users', userRoutes);
 })();
 ```
 
-### 2.8. Configurar o Servidor (`package.json`)
+### 2.8. Configurar o Servidor (`backend/package.json`)
 
 Para facilitar o processo de inicialização, você pode configurar o script de inicialização no `package.json`.
 
@@ -761,7 +761,7 @@ npm install swagger-jsdoc swagger-ui-express
 
 **Passo 2: Configurar a documentação do Swagger**
 
-Crie um arquivo para a configuração, por exemplo, `swaggerConfig.mjs`:
+Crie um arquivo para a configuração `backend/src/config/database.mjsswaggerConfig.mjs`:
 
 ```javascript
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -782,7 +782,7 @@ const swaggerDefinition = {
 
 const options = {
     swaggerDefinition,
-    apis: ['./src/routes/*.mjs'], // Caminho para os arquivos onde estão as rotas
+    apis: ['./src/app/routes/*.mjs'], // Caminho correto para os arquivos de rotas
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -794,35 +794,51 @@ export default swaggerSpec;
 
 **Passo 3: Integrar Swagger ao Express**
 
-No arquivo principal, por exemplo, `server.mjs`:
+Modifique o arquivo principal  `backend/src/app/server.mjs`:
 
 ```javascript
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from '../config/swaggerConfig.mjs'; // Caminho para o arquivo de configuração do Swagger
 import userRoutes from './routes/userRoutes.mjs';
+import sequelize from '../config/database.mjs';
+import dotenv from 'dotenv';
+
+// Carregar variáveis de ambiente
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use('/api/users', userRoutes);
 
 // Documentação Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Rotas
-app.use('/api/users', userRoutes);
-
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}. Documentação disponível em http://localhost:${PORT}/api-docs`));
+(async () => {
+    try {
+        await sequelize.authenticate();
+        console.log('Conectado ao banco de dados!');
+        app.listen(PORT, () => console.log(`Servidor rotando na porta ${PORT}.  Documentação disponível em http://localhost:${PORT}/api-docs`));
+    } catch (error) {
+        console.log('Erro ao conectar ao banco: ', error);
+    }
+})();
 ```
 
 ---
 
 **Passo 4: Documentar as rotas**
 
-Adicione comentários no formato Swagger acima de suas rotas no arquivo `userRoutes.mjs`:
+Modifique o arquivo de rotas no arquivo `backend/src/app/routes/userRoutes.mjs`:
 
 ```javascript
+import express from 'express';
+import { createNewUser, listAllUsers, findUser, modifyUser, removeUser } from '../../usecases/userUseCase.mjs';
+
+const router = express.Router();
+
 /**
  * @swagger
  * components:
@@ -847,8 +863,9 @@ Adicione comentários no formato Swagger acima de suas rotas no arquivo `userRou
  *           type: string
  *           description: Senha do usuário
  *       example:
- *         name: João Silva
- *         email: joao.silva@example.com
+ *         id: 1
+ *         name: Jorge Campos
+ *         email: jorge.campos@example.com
  *         password: password123
  */
 
@@ -871,6 +888,178 @@ router.get('/', async (req, res) => {
     const users = await listAllUsers();
     res.status(200).json(users);
 });
+
+/**
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Cria um novo usuário
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *           example:
+ *             name: Jorge Campos
+ *             email: jorge.campos@example.com
+ *             password: password123
+ *     responses:
+ *       201:
+ *         description: Usuário criado com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *             example:
+ *               id: 1
+ *               name: Jorge Campos
+ *               email: jorge.campos@example.com
+ *               password: password123
+ *       400:
+ *         description: Dados inválidos ou faltando.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Nome, e-mail e senha são obrigatórios."
+ *       500:
+ *         description: Erro ao criar o usuário.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro ao criar usuário. Tente novamente mais tarde."
+ */
+router.post('/', async (req, res) => {
+    try {
+        // Verifica se o corpo da requisição contém os dados necessários
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Nome, e-mail e senha são obrigatórios.' });
+        }
+
+        // Cria o novo usuário
+        const user = await createNewUser(req.body);
+        
+        // Retorna o usuário com o status 201 (Criado)
+        res.status(201).json({
+            message: 'Usuário criado com sucesso.',
+            user: user
+        });
+    } catch (error) {
+        // Se houver um erro durante a criação, retorna o status 500 com a mensagem do erro
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao criar usuário. Tente novamente mais tarde.' });
+    }
+});
+
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Retorna um usuário pelo ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Dados do usuário.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Usuário não encontrado.
+ */
+router.get('/:id', async (req, res) => {
+    const user = await findUser(req.params.id);
+    res.status(200).json(user || 'Usuário não encontrado');
+});
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Atualiza os dados de um usuário
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: Usuário atualizado com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Usuário não encontrado.
+ */
+router.put('/:id', async (req, res) => {
+    const user = await modifyUser(req.params.id, req.body);
+
+    if (user) {
+        res.status(200).json({
+            message: 'Usuário atualizado com sucesso.',
+            user: user // Retorna os dados atualizados do usuário
+        });
+    } else {
+        res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+});
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Remove um usuário pelo ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Usuário removido com sucesso.
+ *       404:
+ *         description: Usuário não encontrado.
+ */
+router.delete('/:id', async (req, res) => {
+    const user = await removeUser(req.params.id);
+    if (user) {
+        res.status(200).json({
+            message: 'Usuário removido com sucesso.',
+            user: user // Retorna os dados atualizados do usuário
+        });
+    } else {
+        res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+});
+
+export default router;
 ```
 
 ---
