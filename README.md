@@ -77,7 +77,7 @@ O `.env` deve conter as variáveis de ambiente:
   ```
 5. Rode as migrações para criar as tabelas no banco:
    ```bash
-   npx sequelize db:migrate
+   npx sequelize-cli db:migrate
    ```
 6. Inicie o servidor:
    ```bash
