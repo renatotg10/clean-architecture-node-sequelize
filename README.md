@@ -280,10 +280,10 @@ Você verá uma interface gráfica interativa para testar suas rotas diretamente
 
 ## 🧩 Contribuindo
 
-Sinta-se à vontade para contribuir com o projeto enviando PRs ou relatando problemas na [seção de Issues](https://github.com/seu-usuario/seu-repositorio/issues).
+Sinta-se à vontade para contribuir com o projeto enviando PRs ou relatando problemas na [seção de Issues](https://github.com/renatotg10/clean-architecture-node-sequelize/issues).
 
 ---
 
 ## 📝 Licença
 
-Este projeto está licenciado sob a Licença MIT. Veja o arquivo [seção de Issues](https://github.com/seu-usuario/seu-repositorio/issues) para mais detalhes.
+Este projeto está licenciado sob a [Licença MIT](https://github.com/renatotg10/clean-architecture-node-sequelize/blob/main/LICENSE.md).
