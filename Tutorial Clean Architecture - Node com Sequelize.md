@@ -36,7 +36,7 @@ Essa abordagem é útil quando você quer configurar rapidamente um projeto e n�
 
 ### 1.2. Instalar as dependências
 ```bash
-npm install express sequelize mysql2 dotenv bcrypt
+npm install express sequelize mysql2 dotenv bcrypt cors
 npm install --save-dev nodemon eslint
 ```
 
@@ -162,9 +162,9 @@ backend/
 └── package.json
 ```
 
-Você pode criar um arquivo `.bat` no Windows para automatizar a criação dessa estrutura de diretórios e arquivos. O script a seguir cria a estrutura de pastas e arquivos dentro da pasta backend.
+Você pode criar um arquivo `.bat` no Windows para automatizar a criação dessa estrutura de diretórios e arquivos. O script a seguir cria a estrutura de pastas e arquivos dentro da pasta `backend`.
 
-**Arquivo: `create-structure.bat` (crie o arquivo dentro da pasta `backend`)**
+**Arquivo: `backend/create-structure.bat`**
 ```bat
 @echo off
 
@@ -1092,25 +1092,16 @@ Você verá uma interface gráfica interativa para testar suas rotas diretamente
 
 ### 3.1. Criar o projeto React
 ```bash
+mkdir clean-architecture-node-sequelize
 cd clean-architecture-node-sequelize
-npx create-react-app frontend
+mkdir frontend
 cd frontend
+npm init -y
 ```
 
 ### 3.2. Instalar as dependências necessárias
 ```bash
-npm install axios bootstrap react-router-dom
-```
-
-### 3.3. Configurar o Bootstrap
-No arquivo `src/index.js`, importe o Bootstrap:
-```javascript
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-
-ReactDOM.render(<App />, document.getElementById('root'));
+npm install axios bootstrap react react-dom react-router-dom
 ```
 
 ---
@@ -1120,6 +1111,8 @@ ReactDOM.render(<App />, document.getElementById('root'));
 ### 4.1. Estrutura do projeto Front-End
 ```plaintext
 frontend/
+├── public/
+│   ├── index.html
 ├── src/
 │   ├── components/
 │   │   ├── Navbar.js
@@ -1129,15 +1122,73 @@ frontend/
 │   │   ├── AddUser.js
 │   │   ├── EditUser.js
 │   │   └── Home.js
-│   ├── App.js
 │   ├── api.js
+│   ├── App.js
+│   ├── index.css
 │   └── index.js
 └── package.json
 ```
 
+Você pode criar um arquivo `.bat` no Windows para automatizar a criação dessa estrutura de diretórios e arquivos. O script a seguir cria a estrutura de pastas e arquivos dentro da pasta `frontend`.
+
+**Arquivo: `frontend/create-structure.bat`**
+```bat
+@echo off
+
+:: Criar a estrutura de diretórios
+mkdir frontend
+mkdir frontend\public
+mkdir frontend\src
+mkdir frontend\src\components
+mkdir frontend\src\pages
+
+:: Criar arquivos dentro da pasta public
+echo <!-- index.html --> > frontend\public\index.html
+
+:: Criar arquivos dentro da pasta src\components
+echo // Navbar.js > frontend\src\components\Navbar.js
+echo // UserForm.js > frontend\src\components\UserForm.js
+echo // UserTable.js > frontend\src\components\UserTable.js
+
+:: Criar arquivos dentro da pasta src\pages
+echo // AddUser.js > frontend\src\pages\AddUser.js
+echo // EditUser.js > frontend\src\pages\EditUser.js
+echo // Home.js > frontend\src\pages\Home.js
+
+:: Criar arquivos principais na pasta src
+echo // App.js > frontend\src\App.js
+echo // api.js > frontend\src\api.js
+echo // index.css > frontend\src\index.css
+echo // index.js > frontend\src\index.js
+
+echo Estrutura criada com sucesso!
+```
+
+Execute o arquivo `frontend/create-structure.bat`:
+```bash
+create-structure.bat
+```
+**Configurar o Bootstrap (`frontend/src/index.js`)**
+
+No arquivo `frontend/src/index.js`, importe o Bootstrap:
+```javascript
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Importando a nova versão de ReactDOM no React 18
+import './index.css';
+import App from './App.js';
+
+const root = ReactDOM.createRoot(document.getElementById('root')); // Cria o root
+root.render( // Renderiza o componente dentro do root
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
 ---
 
-### 4.2. Criar o arquivo de API (`src/api.js`)
+### 4.2. Criar o arquivo de API (`frontend/src/api.js`)
 ```javascript
 import axios from 'axios';
 
@@ -1156,7 +1207,7 @@ export const deleteUser = (id) => axios.delete(`${API_URL}/${id}`);
 
 ---
 
-### 4.3. Criar o componente Navbar (`src/components/Navbar.js`)
+### 4.3. Criar o componente Navbar (`frontend/src/components/Navbar.js`)
 ```javascript
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -1184,7 +1235,7 @@ export default Navbar;
 
 ---
 
-### 4.4. Criar o componente UserTable (`src/components/UserTable.js`)
+### 4.4. Criar o componente UserTable (`frontend/src/components/UserTable.js`)
 ```javascript
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -1220,7 +1271,7 @@ export default UserTable;
 
 ---
 
-### 4.5. Criar o componente UserForm (`src/components/UserForm.js`)
+### 4.5. Criar o componente UserForm (`frontend/src/components/UserForm.js`)
 ```javascript
 import React, { useState } from 'react';
 
@@ -1282,13 +1333,13 @@ export default UserForm;
 
 ---
 
-### 4.6. Criar as páginas (`src/pages/`)
+### 4.6. Criar as páginas (`frontend/src/pages/`)
 
-#### **Home.js**
+#### **`frontend/src/pages/Home.js`**
 ```javascript
 import React, { useEffect, useState } from 'react';
-import { getUsers, deleteUser } from '../api';
-import UserTable from '../components/UserTable';
+import { getUsers, deleteUser } from '../api.js';
+import UserTable from '../components/UserTable.js';
 
 const Home = () => {
   const [users, setUsers] = useState([]);
@@ -1318,11 +1369,11 @@ const Home = () => {
 export default Home;
 ```
 
-#### **AddUser.js**
+#### **`frontend/src/pages/AddUser.js`**
 ```javascript
 import React from 'react';
-import { createUser } from '../api';
-import UserForm from '../components/UserForm';
+import { createUser } from '../api.js'; // Adicione a extensão .js
+import UserForm from '../components/UserForm.js'; // Adicione a extensão .js
 import { useNavigate } from 'react-router-dom';
 
 const AddUser = () => {
@@ -1344,11 +1395,11 @@ const AddUser = () => {
 export default AddUser;
 ```
 
-#### **EditUser.js**
+#### **`frontend/src/pages/EditUser.js`**
 ```javascript
 import React, { useEffect, useState } from 'react';
-import { getUserById, updateUser } from '../api';
-import UserForm from '../components/UserForm';
+import { getUserById, updateUser } from '../api.js';
+import UserForm from '../components/UserForm.js';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const EditUser = () => {
@@ -1383,14 +1434,14 @@ export default EditUser;
 
 ---
 
-### 4.7. Configurar o Router (`src/App.js`)
+### 4.7. Configurar o Router (`frontend/src/App.js`)
 ```javascript
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import AddUser from './pages/AddUser';
-import EditUser from './pages/EditUser';
+import Navbar from './components/Navbar.js';
+import Home from './pages/Home.js';
+import AddUser from './pages/AddUser.js';
+import EditUser from './pages/EditUser.js';
 
 const App = () => (
   <Router>
@@ -1409,11 +1460,17 @@ export default App;
 ---
 
 Agora, o **Front-End** e o **Back-End** estão conectados. Para iniciar, rode os comandos:
-- **Back-End:** `nodemon src/index.mjs`
-- **Front-End:** `npm start`
+
+- **Back-End:**
+```bash
+cd backend
+npm start
+```
+
+- **Front-End:**
+```bash
+cd frontend
+npm start
+```
 
 Você terá um CRUD funcional com React, Express, Sequelize, e MySQL. 🎉
-
-### Fonte
-
-- https://chatgpt.com/share/674ac89b-b8d4-8011-8b06-6ec9f4f36140
