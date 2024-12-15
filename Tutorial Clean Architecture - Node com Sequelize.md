@@ -1168,6 +1168,33 @@ Execute o arquivo `frontend/create-structure.bat`:
 ```bash
 create-structure.bat
 ```
+
+**Configurar o arquivo HTML base da aplicação (`frontend/public/index.html`)**
+```javascript
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React App</title>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
+```
+
+**Configurar o arquivo de estilos globais (`frontend/src/index.css`)**
+```javascript
+body {
+  font-family: Arial, sans-serif;
+}  
+```
+
 **Configurar o Bootstrap (`frontend/src/index.js`)**
 
 No arquivo `frontend/src/index.js`, importe o Bootstrap:
