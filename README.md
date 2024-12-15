@@ -96,11 +96,7 @@ O `.env` deve conter as variáveis de ambiente:
    ```bash
    npm install
    ```
-3. Configure o arquivo `.env` para definir a URL da API:
-   ```
-   REACT_APP_API_URL=http://localhost:3001
-   ```
-4. Inicie o servidor de desenvolvimento:
+3. Inicie o servidor de desenvolvimento:
    ```bash
    npm start
    ```
